@@ -1,0 +1,88 @@
+###########################################
+#Welcome to zUMIs
+#below, please fill the mandatory inputs
+#We expect full paths for all files.
+###########################################
+
+#define a project name that will be used to name output files
+project: Sample_1
+
+#Sequencing File Inputs:
+#For each input file, make one list object & define path and barcode ranges
+#base definition vocabulary: BC(n) UMI(n) cDNA(n).
+#Barcode range definition needs to account for all ranges. You can give several comma-separated ranges for BC & UMI sequences, eg. BC(1-6,20-26)
+#you can specify between 1 and 4 input files
+sequence_files:
+  file1:
+    name: Sample_1_R1.fastq.gz #path to first file
+    base_definition:
+      - cDNA(1-98) #example: BC(1-8)
+  file2:
+    name: Sample_1_CB.fastq.gz #path to second file
+    base_definition:
+      - BC(1-14) #example: cDNA(1-50)
+  file3:
+    name: Sample_1_UMI.fastq.gz #path to second file
+    base_definition:
+      - UMI(1-10) #example: cDNA(1-50)
+
+
+#reference genome setup
+reference:
+  STAR_index: STAR_index_mm10
+  SAF_file: mm10_pc_exon_te_tx.saf #path to feature count regions
+  additional_files: #Optional parameter. It is possible to give additional reference sequences here, eg ERCC.fa
+  additional_STAR_params: #Optional parameter. you may add custom mapping parameters to STAR here
+  allow_multimapping: yes #yes or no for multimapping option
+#output directory
+out_dir: output directory
+
+###########################################
+#below, you may optionally change default parameters
+###########################################
+
+#number of processors to use
+num_threads: 10
+mem_limit: 60 #Memory limit in Gigabytes, null meaning unlimited RAM usage.
+
+#barcode & UMI filtering options
+#number of bases under the base quality cutoff that should be filtered out.
+#Phred score base-cutoff for quality control.
+filter_cutoffs:
+  BC_filter:
+    num_bases: 1
+    phred: 20
+  UMI_filter:
+    num_bases: 1
+    phred: 20
+
+#Options for Barcode handling
+#You can give either number of top barcodes to use or give an annotation of cell barcodes.
+#If you leave both barcode_num and barcode_file empty, zUMIs will perform automatic cell barcode selection for you!
+barcodes:
+  barcode_num: null
+  barcode_file: null
+  automatic: yes #Give yes/no to this option. If the cell barcodes should be detected automatically. If the barcode file is given in combination with automatic barcode detection, the list of given barcodes will be used as whitelist.
+  BarcodeBinning: 1 #Hamming distance binning of close cell barcode sequences.
+  nReadsperCell: 100 #Keep only the cell barcodes with atleast n number of reads.
+
+#Options related to counting of reads towards expression profiles
+counting_opts:
+  strand: 1 #Is the library stranded? 0 = unstranded, 1 = positively stranded, 2 = negatively stranded
+  countMultiMappingReads: yes #Do you want to count the multiple aligned reads
+  fracOverlap: 0.1 #percentage reads to overlap with features
+  twoPass: yes #perform basic STAR twoPass mapping
+
+
+#Start zUMIs from stage. Possible TEXT(Filtering, Mapping, Counting, Summarising). Default: Filtering.
+which_Stage: Filtering
+
+#define dependencies program paths
+samtools_exec: path_to_samtools_exec #samtools executable
+Rscript_exec: path_to_Rscript_exec #Rscript executable
+STAR_exec: path_to_STAR_exec #STAR executable
+pigz_exec: path_to_pigz_exec #pigz executable
+
+#below, fqfilter will add a read_layout flag defining SE or PE
+zUMIs_directory: path_to_zUMIs
+read_layout: SE
