@@ -50,6 +50,7 @@ STAR --genomeDir path_to_genome_index \
 ```
 
 `--outFilterMultimapNmax` was set to "500" to increase the number of multiple aligned reads, this is to preserve reads that originated from repetitive regions
+
 `--outSAMattributes` was set to "NH HI NM MD XS AS" facility the downstream transcript assembly step
 
 
@@ -99,10 +100,15 @@ Rscript export_saf_file.r -g mm10.refGene.txt -r mm10.rmsk.txt -l mm10.chrNameLe
 The script above takes in the annotation files and output processed files in SAF format (The SAF annotation format has five required columns, including GeneID, Chr, Start, End and Strand. These columns can be in any order. More columns can be included in the annotation. Columns are tab-delimited. Column names are case insensitive, see featurecount document for details https://www.rdocumentation.org/packages/Rsubread/versions/1.22.2/topics/featureCounts).
 
 `-g` path to refGene.txt file
+
 `-r` path to rmsk.txt file
+
 `-l` path to chrNameLength.txt file
+
 `-m` mitochondria chromosome patterns, chrM or chrMT is the most common mitochondria chromosome names, if specify more than two pattern, separate the two pattern with `|`  for example `chrM1|chrM2`. If `-m` or `-l` is not set, mitochondria saf files will not be generated.
+
 `-n` basename for the output files. If basename is set to `mm10`, the outputs will be `mm10_chrM.saf`, `mm10_nc_exon.saf`, `mm10_pc_exon.saf`, `mm10_te.saf` and `mm10_te.gr.rds`
+
 `-p` number of threads to use, default is 5
 
 ### Selecting TE transcripts
@@ -115,11 +121,17 @@ Rscript processing_assembled_transcripts.r -f assembly.gtf -g mm10_pc_exon.saf -
 ```
 
 `-f` path to assembled transcript gtf, this is one of taco's outputs
+
 `-g` path to mRNA exon saf file, file was generated in the previous step
+
 `-a` path to ncRNA exon saf file, file was generated in the previous step
+
 `-m` path to chrM saf file, file was generated in the previous step, default unknown
+
 `-r` path to TE saf file, file was generated in the previous step
+
 `-n` basename for the output files. If basename is set as `mm10`, the outputs will be `mm10_pc_exon_te_tx.saf`(saf file containing mRNA exons, TE transcript exons and mitochondria chromosome if specified), `mm10_te_tx.rds`(rds file containing TE transcripts info as a GRanges object) and mm10_transcript_qc.pdf (pdf file showing the types of assembled transcripts and the number of TE transcripts that overlap with known ncRNA genes)
+
 `-p` number of threads to use, default is 5
 
 
@@ -166,11 +178,17 @@ Rscripts  redistribute_multiple_aligned_reads.r -f Cell1_featurecount.sam.txt \
 The final output for the code above is Cell1_count_dt.txt, this file contains four columns, "feature" is name of feature, "uniq" quantifies the number of reads that were only mapped to single features, "EM_distri" quantifies the number of reads at features using EM algorithm, "even_distri" quantifies the number of reads at feature by evenly distribute reads that were mapped to multiple features.
 
 For script `redistribute_multiple_aligned_reads.r`:
+
 `-f` path to reformatted alignment files
+
 `-r` path to features in saf format
+
 `-n` basename of the final output
+
 `-s` maximum number of cycles for the EM algorithm, default value 50
+
 `-m` stop the EM algorithm if the maximum number of reads changes per feature is less than m, default value 1
+
 `-p` number of threads, default value 5
 
 ### Samples generated using UMI based protocols
@@ -189,7 +207,21 @@ The scripts above follows the design of the original zUMIs, key parameters were 
 #### Quantifying signal at TE transcripts
 
 ```
-scRNA_UMI_counting.R -f Sample_1_featurecount.sam.txt -r mm10_pc_exon_te_tx.saf -n Sample_1 -s 50 -m 1 -p 10
+scRNA_UMI_counting.R -f Sample_1_featurecount.sam.txt \
+-r mm10_pc_exon_te_tx.saf -n Sample_1 -s 50 -m 1 -p 3
 
 ```
+
+`-f` path to reformatted alignment files
+
+`-r` path to features in saf format
+
+`-n` basename of the final output
+
+`-s` maximum number of cycles for the EM algorithm, default value 50
+
+`-m` stop the EM algorithm if the maximum number of reads changes per feature is less than m, default value 1
+
+`-p` number of threads, default value 5
+
 The final output for the code above is Sample_1_count_dt.txt. This file contains five columns, "feature" is name of feature, "uniq" quantifies the number of reads that were only mapped to single features, "EM_distri" quantifies the number of reads at features using EM algorithm, "even_distri" quantifies the number of reads at feature by evenly distribute reads that were mapped to multiple features, "RG" specifies the cell barcode.
