@@ -31,10 +31,10 @@ option_list <- list(
   make_option(c("-l", "--length"),
               default = "unknown",
               type="character",
-              help="Path to chromosome length files"),  
+              help="Path to chromosome length files"),
   make_option(c("-p", "--thread"),
               type="numeric",
-              default = 5, 
+              default = 5,
               help="number of cores default 5"))
 
 
@@ -110,7 +110,7 @@ te_off_exon_saf <- mclapply(tes_to_rm, function(x){
 }, mc.cores = opt$thread) %>%do.call(rbind, .)
 
 
-te_saf <- data.table(GeneID = te.gr_non_exon$name, 
+te_saf <- data.table(GeneID = te.gr_non_exon$name,
                      Chr = as.character(seqnames(te.gr_non_exon)),
                      Start = start(te.gr_non_exon),
                      End = end(te.gr_non_exon),
@@ -128,6 +128,8 @@ if(opt$length != "unknown" & opt$mito != "unknown"){
   chrM <- chr_df[grep(opt$mito, chr_df$V1)]
   if(nrow(chrM) >0){
     chrM_saf <- data.table(GeneID = chrM$V1, Chr = chrM$V1, Start = 1, End = chrM$V2, Strand = "+", type = "chrM")
+    pc_exons_saf <- pc_exons_saf[!pc_exons_saf$Chr %in% chrM_saf$Chr]
+    nc_exons_saf <- nc_exons_saf[!nc_exons_saf$Chr %in% chrM_saf$Chr]
     write.table(chrM_saf, file = paste0(opt$name, "_chrM.saf"), row.names = F, quote = F, sep = "\t")
   }else{
     message("Could not find the provided mitochondria pattern, please check the input")
@@ -138,5 +140,6 @@ message("Saving all saf files")
 
 write.table(te_saf, file = paste0(opt$name, "_te.saf"), row.names = F, quote = F, sep = "\t")
 saveRDS(te.gr_sub, file = paste0(opt$name, "_te.gr.rds"))
+
 write.table(pc_exons_saf, file = paste0(opt$name, "_pc_exon.saf"), row.names = F, quote = F, sep = "\t")
 write.table(nc_exons_saf, file = paste0(opt$name, "_nc_exon.saf"), row.names = F, quote = F, sep = "\t")
